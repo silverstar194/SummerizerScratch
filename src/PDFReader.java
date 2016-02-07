@@ -1,27 +1,51 @@
-///Taken from http://radixcode.com/pdfbox-example-code-how-to-extract-text-from-pdf-file-with-java/
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
  
+/**
+ * The Class PDFReader. Reads in PDF from file and converts to text.
+ * Taken from http://radixcode.com/pdfbox-example-code-how-to-extract-text-from-pdf-file-with-java/
+ */
 public class PDFReader {
     
+   /** The parser. */
    private PDFParser parser;
+   
+   /** The pdf stripper. */
    private PDFTextStripper pdfStripper;
+   
+   /** The pd doc. */
    private PDDocument pdDoc ;
+   
+   /** The cos doc. */
    private COSDocument cosDoc ;
    
-   private String Text ;
+   /** The Text. */
+   private String text ;
+   
+   /** The file path. */
    private String filePath;
+   
+   /** The file. */
    private File file;
  
+    /**
+     * Instantiates a new PDF reader.
+     */
     public PDFReader() {
         
     }
     
+   /**
+    * Converts PDF to text
+    *
+    * @return text of PDF
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public String ToText() throws IOException
    {
        this.pdfStripper = null;
@@ -37,17 +61,17 @@ public class PDFReader {
        pdDoc = new PDDocument(cosDoc);
        pdDoc.getNumberOfPages();
        pdfStripper.setStartPage(1);
-       pdfStripper.setEndPage(10);
-       //pdfStripper.setEndPage(pdDoc.getNumberOfPages());
-       
-       // reading text from page 1 to 10
-       // if you want to get text from full pdf file use this code
-       // pdfStripper.setEndPage(pdDoc.getNumberOfPages());
-       
-       Text = pdfStripper.getText(pdDoc);
-       return Text;
+       pdfStripper.setEndPage(pdDoc.getNumberOfPages());
+
+       text = pdfStripper.getText(pdDoc);
+       return text;
    }
  
+    /**
+     * Sets the file path.
+     *
+     * @param filePath the new file path
+     */
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
