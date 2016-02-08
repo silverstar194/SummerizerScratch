@@ -184,7 +184,8 @@ public class Sentence implements Comparable<Sentence>{
 		 Map<String, Double> sorted = this.wordFre;
 		 double count = 0;
 		 double total = 0;
-		 for (double f : sorted .values()) {
+		 
+		 for (double f : sorted.values()) {
 			 total += f;
 			}
 		 
