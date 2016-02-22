@@ -124,7 +124,7 @@ public class Main {
 			//iterate through each token in sentence
 			for(String token : tokens){
 				newLineCount += token.length();
-				content.drawString(token+ " ");
+				content.drawString(" "+token+ " ");
 
 				//check is newline is needed
 				if(newLineCount > 80){	
