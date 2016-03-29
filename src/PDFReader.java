@@ -35,9 +35,24 @@ public class PDFReader {
  
     /**
      * Instantiates a new PDF reader.
+     * @throws IOException 
+     * @throws FileNotFoundException 
      */
-    public PDFReader() {
+    public PDFReader(String filePath) throws FileNotFoundException, IOException{
+    	setFilePath(filePath);
+    	
+        this.pdfStripper = null;
+        this.pdDoc = null;
+        this.cosDoc = null;
         
+        file = new File(filePath);
+        parser = new PDFParser(new RandomAccessFile(file,"r")); // update for PDFBox V 2.0
+        
+        parser.parse();
+        cosDoc = parser.getDocument();
+        pdfStripper = new PDFTextStripper();
+        pdDoc = new PDDocument(cosDoc);
+    	
     }
     
    /**
@@ -46,22 +61,12 @@ public class PDFReader {
     * @return text of PDF
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public String ToText() throws IOException
+   public String ToText(int startPage, int endPage) throws IOException
    {
-       this.pdfStripper = null;
-       this.pdDoc = null;
-       this.cosDoc = null;
-       
-       file = new File(filePath);
-       parser = new PDFParser(new RandomAccessFile(file,"r")); // update for PDFBox V 2.0
-       
-       parser.parse();
-       cosDoc = parser.getDocument();
-       pdfStripper = new PDFTextStripper();
-       pdDoc = new PDDocument(cosDoc);
+ 
        pdDoc.getNumberOfPages();
-       pdfStripper.setStartPage(1);
-       pdfStripper.setEndPage(pdDoc.getNumberOfPages());
+       pdfStripper.setStartPage(startPage);
+       pdfStripper.setEndPage(endPage);
 
        text = pdfStripper.getText(pdDoc);
        return text;
@@ -72,8 +77,20 @@ public class PDFReader {
      *
      * @param filePath the new file path
      */
-    public void setFilePath(String filePath) {
+    private void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+    
+
+    
+    
+    /**
+     *  Gets total page count
+     *
+     * 
+     */
+    public int totalPages(){
+    	return pdDoc.getNumberOfPages();
     }
    
 }

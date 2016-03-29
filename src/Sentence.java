@@ -5,34 +5,41 @@ import java.util.Map.Entry;
  * The Class Sentence.
  */
 public class Sentence implements Comparable<Sentence>{
+
+	/** The position of sentence within page*/
+	private int pos;
 	
-	/** The position of sentence */
-	private double pos;
-	
-	/** The frequencies of collisions with keywords. */
-	private double freqCollision;
-	
-	/** The title collision. (UNUSED) */
-	private double titleCollision;
-	
-	/** The cue collision. (UNUSED)*/
-	private double cueCollision;
-	
+	/** The page of sentence*/
+	private int page;
+
+	/** The frequencies of collisions with keywords locally. */
+	private double freqCollisionLocal;
+
+
+	/** The frequencies of collisions with keywords global. */
+	private double freqCollisionGlobal;
+
 	/** The content. */
 	private String content;
-	
+
 	/** The content stemmed. */
 	private String contentStemmed;
-	
+
 	/** The word frequency */
-	private Map<String, Double> wordFre;
-	
+	private Map<String, Double> wordFreLocal;
+
+	/** The word frequency */
+	private GlobalKeywords globalKeywords;
+
 	/** The sentence count. */
 	private double sentenceCount;
-	
+
 	/** The score. */
 	private double score;
-	
+
+	/**Top n globally*/
+	private boolean top;
+
 	/**
 	 * Instantiates a new sentence.
 	 *
@@ -42,53 +49,57 @@ public class Sentence implements Comparable<Sentence>{
 	 * @param wordFre the word frequency
 	 * @param sentenceCount the sentence count
 	 */
-	public Sentence(String content, String contentStemmed, int pos, Map<String, Double> wordFre, double sentenceCount){
+	public Sentence(String content, String contentStemmed, int pos, int page, Map<String, Double> wordFreLocal, GlobalKeywords globalKeywords, double sentenceCount){
 		this.pos = pos;
+		this.page = page;
 		this.content = content;
 		this.contentStemmed = contentStemmed;
-		this.wordFre = wordFre;
+		this.wordFreLocal = wordFreLocal;
+		this.globalKeywords = globalKeywords;
 		this.sentenceCount = sentenceCount;
-		calculateClashValue();
-		calculateScore();
+		this.freqCollisionLocal = calculateClashValueLocal();
+		this.freqCollisionGlobal = calculateClashValueGlobal();
+		this.score = calculateScore();
 	}
-	
+
 	/**
 	 * Gets the position in PDF
 	 *
 	 * @return the position
 	 */
 	//getters
-	public double getPos(){
+	public int getPos(){
 		return this.pos;
 	}
-	
+
 	/**
-	 * Gets the frequency collision.
+	 * Gets the frequency collision locally.
 	 *
 	 * @return the frequency collision
 	 */
-	public double getfreqCollision(){
-		return this.freqCollision;
+	public double getfreqCollisionLocal(){
+		return this.freqCollisionLocal;
 	}
 	
 	/**
-	 * Gets the title collision.
+	 * Gets the page.
 	 *
-	 * @return the title collision
+	 * @return the page number
 	 */
-	public double gettitleCollision(){
-		return this.titleCollision;
+	public int getPage(){
+		return this.page;
 	}
-	
+
 	/**
-	 * Gets the cue collision.
+	 * Gets the frequency collision globally.
 	 *
-	 * @return the cue collision
+	 * @return the frequency collision
 	 */
-	public double getcueCollision(){
-		return this.cueCollision;
+	public double getfreqCollisionGlobal(){
+		return this.freqCollisionGlobal;
 	}
-	
+
+
 	/**
 	 * Gets the content.
 	 *
@@ -97,7 +108,7 @@ public class Sentence implements Comparable<Sentence>{
 	public String getcontent(){
 		return this.content;
 	}
-	
+
 	/**
 	 * Gets the content stemmed.
 	 *
@@ -106,68 +117,60 @@ public class Sentence implements Comparable<Sentence>{
 	public String getcontentStemmed(){
 		return this.contentStemmed;
 	}
-	
-	
+
+
 	/**
 	 * Sets the position
 	 *
 	 * @param pos the new frequency 
 	 */
 
-	public void setPos(double pos){
+	public void setPos(int pos){
 		this.pos = pos;
 	}
-	
+
 	/**
-	 * Gets the frequency collision.
+	 * Sets the frequency collision locally.
 	 *
 	 * @param freqCollision the frequency collision
 	 * @return the frequency collision
 	 */
-	public void getfreqCollision(double freqCollision){
-		this.freqCollision = freqCollision;
+	public void setfreqCollisionLocal(double freqCollisionLocal){
+		this.freqCollisionLocal = freqCollisionLocal;
 	}
-	
+
+
 	/**
-	 * Gets the title collision.
+	 * Sets the frequency collision globally.
 	 *
-	 * @param titleCollision the title collision
-	 * @return the title collision
+	 * @param freqCollision the frequency collision
+	 * @return the frequency collision
 	 */
-	public void gettitleCollision(double titleCollision){
-		this.titleCollision = titleCollision;
+	public void setfreqCollisionGlobal(double freqCollisionGlobal){
+		this.freqCollisionGlobal = freqCollisionGlobal;
 	}
-	
+
+
 	/**
-	 * Gets the cue collision.
-	 *
-	 * @param cueCollision the cue collision
-	 * @return the cue collision
-	 */
-	public void getcueCollision(double cueCollision){
-		this.cueCollision = cueCollision;
-	}
-	
-	/**
-	 * Gets the content.
+	 * Sets the content.
 	 *
 	 * @param content the content
 	 * @return the content
 	 */
-	public void getcontent(String content){
+	public void setcontent(String content){
 		this.content = content;
 	}
-	
+
 	/**
-	 * Gets the content stemmed.
+	 * Sets the content stemmed.
 	 *
 	 * @param contentStemmed the content stemmed
 	 * @return the content stemmed
 	 */
-	public void getcontentStemmed(String contentStemmed){
-		 this.contentStemmed = contentStemmed;
+	public void setcontentStemmed(String contentStemmed){
+		this.contentStemmed = contentStemmed;
 	}
-	
+
 	/**
 	 * Gets the score.
 	 *
@@ -176,50 +179,83 @@ public class Sentence implements Comparable<Sentence>{
 	public double getScore(){
 		return this.score;
 	}
-	
+
+	public void setTop(boolean set){
+		this.top = set;
+	}
+
+	public boolean checkTop(){
+		return this.top;
+	}
+
 	/**
-	 * Calculate clash value.
+	 * Calculate clash value local.
 	 */
-	private void calculateClashValue(){
-		 Map<String, Double> sorted = this.wordFre;
-		 double count = 0;
-		 double total = 0;
-		 
-		 for (double f : sorted.values()) {
-			 total += f;
+	private double calculateClashValueLocal(){
+		Map<String, Double> sorted = this.wordFreLocal;
+		double count = 0;
+		double total = 0;
+
+		for (double f : sorted.values()) {
+			total += f;
+		}
+
+		for(Entry<String, Double> entry : sorted.entrySet()) {
+			String key = entry.getKey();
+			Double value = entry.getValue();
+			if(contentStemmed.contains(key)){
+				count += value;
 			}
-		 
-		 for(Entry<String, Double> entry : sorted.entrySet()) {
-		     String key = entry.getKey();
-		     Double value = entry.getValue();
-		    if(contentStemmed.contains(key)){
-		    	count += value;
-		    }
-		    	
-		 }
-		 
-		 count = count/total;
-		 
-		 this.freqCollision = count;
+
+		}
+
+		return count/total;
+
+	}
+
+	/**
+	 * Calculate clash value global.
+	 */
+	private double calculateClashValueGlobal(){
+		Map<String, Double> sorted = globalKeywords.getwordFreqGlobal();
+		double count = 0;
+		double total = 0;
+
+		for (double f : sorted.values()) {
+			total += f;
+		}
+
+		for(Entry<String, Double> entry : sorted.entrySet()) {
+			String key = entry.getKey();
+			Double value = entry.getValue();
+			if(contentStemmed.contains(key)){
+				count += value;
+			}
+
+		}
+
+		return count/total;
+
 	}
 
 
-	
+
 	/**
 	 * Calculate score.
 	 */
-	private void calculateScore(){
-		double wordFre = this.freqCollision;
+	private double calculateScore(){
+		double wordFreLocal = this.freqCollisionLocal;
+		double wordFreGlobal = this.freqCollisionGlobal;
 		double pos = this.pos;
-		
+
 		if(pos<(sentenceCount/2)){
 			pos = pos/(sentenceCount/2);
 		}else{
 			pos = (sentenceCount-pos)/(sentenceCount/2);
 		}
-	
-		this.score = (Config.posWeight*pos)+(Config.wordFreWeight*wordFre);  
-		
+
+		return (Config.posWeight*pos)+(Config.wordFreWeightLocal*wordFreLocal)+(Config.wordFreWeightGlobal*wordFreGlobal);  
+
 	}
 
 
@@ -228,8 +264,8 @@ public class Sentence implements Comparable<Sentence>{
 	 */
 	@Override
 	public int compareTo(Sentence o) {
-		 if (this.score > o.getScore()) return -1;
-	        if (this.score < o.getScore()) return 1;
-	        return 0;
+		if (this.score > o.getScore()) return -1;
+		if (this.score < o.getScore()) return 1;
+		return 0;
 	}
 }

@@ -20,15 +20,22 @@ public class Config {
 	/** Maximum length of a sentence in chars */
 	public static final double maxLength = 350;
 
-	/** Weight of keywords. */
-	public static final double wordFreWeight = .8;
+	/** Weight of keywords locally. */
+	public static final double wordFreWeightLocal = .8;
+	
+	/** Weight of keywords globally. */
+	public static final double wordFreWeightGlobal = 4;
 
 	/** Weight of position of sentences. */
-	public static final double posWeight = .2;
+	public static final double posWeight = .1;
 
 	/** Minimum amount for keywords to count. */
 	public static final double minOccurences = 2;
 
-
+	/** Minimum length for keywords*/
+	public static final double minKeyWordLength = 3;
+	
+	/** Top Sentences (in percent) for Highlighting*/
+	public static final double topPercent = 10;
 
 }

@@ -106,12 +106,12 @@ public class Helper {
 	}
 
 	/**
-	 * Counts number of keywords found in each sentence
+	 * Counts number of local keywords found in each sentence
 	 *
 	 * @param string to check words in
 	 * @return the map of <Words, Number of Occurrences>
 	 */
-	public static Map<String, Double> wordCount(String[] stringArray){
+	public static Map<String, Double> wordCountLocal(String[] stringArray){
 		Map<String, Double> map = new HashMap<String, Double>();
 
 		for(String sentence : stringArray){
@@ -126,6 +126,8 @@ public class Helper {
 					map.replace(r, count);
 				}
 			}
+		}
+			
 			//removes blank words
 			map.remove("");
 			
@@ -135,13 +137,60 @@ public class Helper {
 				Map.Entry<String,Double> entry = iter.next();
 				
 				//removes words with low value of occurrences
-				if(Config.minOccurences >= entry.getValue()){
+				if(Config.minOccurences >= entry.getValue() || entry.getKey().length()<Config.minKeyWordLength){
 					iter.remove();
 				}
 			}
-		}
 		
 		//sorts low to high based in value
+		map = sortByComparator(map);
+		
+		return map;
+	}
+	
+	/**
+	 * Counts number of global keywords found in each sentence weighted by length of document
+	 *
+	 * @param string to check words in
+	 * @return the map of <Words, Number of Occurrences>
+	 */
+	public static Map<String, Double> wordCountGlobal(GlobalKeywords globalKeywords){
+		Map<String, Double> map = new HashMap<String, Double>();
+		String[] stringArray = globalKeywords.getcontentStemned();
+	
+		
+		for(String sentence : stringArray){
+			String[] tokenize = sentence.split(" ");
+
+			for(String r : tokenize){
+				if(!map.containsKey(r)){
+					map.put(r,0.0);
+				}else{
+					double count = map.get(r);
+					count++;
+					map.replace(r, count);
+				}
+			}
+		}
+
+			//removes blank words
+			map.remove("");
+
+		
+			Iterator<Map.Entry<String,Double>> iter = map.entrySet().iterator();
+
+			while (iter.hasNext()) {
+				Map.Entry<String,Double> entry = iter.next();
+				
+				//removes words with low value of occurrences
+				if(Config.minOccurences >= entry.getValue() || entry.getKey().length()<Config.minKeyWordLength){
+					iter.remove();
+				}else{
+					entry.setValue(entry.getValue()/globalKeywords.gettotalPages());
+				}
+			}
+		
+//		//sorts low to high based in value
 		map = sortByComparator(map);
 		return map;
 	}
